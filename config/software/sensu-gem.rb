@@ -4,6 +4,7 @@ default_version "0.26.1"
 dependency "ruby"
 dependency "rubygems"
 dependency "libffi"
+dependency "postgresql"
 if freebsd? && ohai['os_version'].to_i < 1100000
   dependency "rubysl-readline-gem"
 else
@@ -30,6 +31,69 @@ build do
 
   gem "install sensu-plugin" \
       " --version '1.4.4'" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-ceph" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-cpu-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-dhcp" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-disk-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-dns" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-elasticsearch" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-filesystem-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-http" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-influxdb" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-ipmi" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-load-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-mailer" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-memory-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-mongodb" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-mysql" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-network-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-openldap" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-postgres" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-process-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-raid-checks" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-snmp" \
       " --no-ri --no-rdoc", env: env
 
   share_dir = File.join(install_dir, "embedded", "share", "sensu")
