@@ -66,6 +66,9 @@ build do
   gem "install sensu-plugins-load-checks" \
       " --no-ri --no-rdoc", env: env
 
+  gem "install sensu-plugins-logs" \
+      " --no-ri --no-rdoc", env: env
+
   gem "install sensu-plugins-mailer" \
       " --no-ri --no-rdoc", env: env
 
