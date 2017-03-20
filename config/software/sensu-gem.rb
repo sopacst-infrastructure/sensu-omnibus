@@ -30,7 +30,7 @@ build do
       " --no-ri --no-rdoc", env: env
 
   gem "install sensu-plugin" \
-      " --version '1.4.4'" \
+      " --version '1.4.5'" \
       " --no-ri --no-rdoc", env: env
 
   gem "install sensu-plugins-ceph" \
@@ -106,6 +106,9 @@ build do
   if freebsd?
     etc_dir = "/usr/local/etc"
     usr_bin_dir = "/usr/local/bin"
+  elsif mac_os_x?
+    etc_dir = "/etc"
+    usr_bin_dir = "/usr/local/bin"
   else
     etc_dir = "/etc"
     usr_bin_dir = "/usr/bin"
@@ -166,12 +169,10 @@ build do
   end
 
   # misc files
-  copy("#{files_dir}/config.json.example", "#{etc_dir}/sensu/config.json.example")
   copy("#{files_dir}/default/sensu", "#{etc_dir}/default/sensu")
   copy("#{files_dir}/logrotate.d/sensu", "#{etc_dir}/logrotate.d/sensu")
 
   # add extra package files (files outside of /opt/sensu)
-  project.extra_package_file("#{etc_dir}/sensu/config.json.example")
   project.extra_package_file("#{etc_dir}/default/sensu")
   project.extra_package_file("#{etc_dir}/logrotate.d/sensu")
   project.extra_package_file("#{usr_bin_dir}/sensu-install")

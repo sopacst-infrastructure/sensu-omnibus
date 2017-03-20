@@ -1,8 +1,6 @@
 <%
 build_version = ENV["SENSU_VERSION"]
 build_iteration = ENV["BUILD_NUMBER"]
-gpg_passphrase = ENV["GPG_PASSPHRASE"]
-gnupg_path = ENV["GNUPG_PATH"]
 aws_ssh_key_id = ENV["AWS_SSH_KEY_ID"]
 aws_ssh_key_path = ENV["AWS_SSH_KEY_PATH"]
 
@@ -15,12 +13,6 @@ s3_enabled = !s3.any? { |k,v| v.nil? }
 if ENV.key?("AWS_ACCESS_KEY_ID") && ENV.key?("AWS_SECRET_ACCESS_KEY")
   s3.merge!(:access_key_id => ENV["AWS_ACCESS_KEY_ID"])
   s3.merge!(:secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"])
-end
-
-if gpg_passphrase && gnupg_path
-  # no-op
-elsif gpg_passphrase || gnupg_path
-  raise "Both GPG_PASSPHRASE and GNUPG_PATH must be set for signed RPMs"
 end
 
 unless build_version && build_iteration
@@ -43,6 +35,10 @@ driver:
   <% if ENV['TRAVIS'] == 'true' %>
     "travis-job-number": "<%= ENV['TRAVIS_JOB_NUMBER'].nil? ? 'unknown' : ENV['TRAVIS_JOB_NUMBER'] %>"
   <% end %>
+  block_device_mappings:
+    - device_name: /dev/sda1
+      ebs:
+        delete_on_termination: true
 <% unless aws_ssh_key_path.nil? %>
 transport:
   ssh_key: <%= aws_ssh_key_path %>
@@ -75,6 +71,10 @@ platforms:
     driver:
       image_id: ami-4fbf2f7f
       instance_type: m1.medium
+      block_device_mappings:
+        - device_name: /dev/sda
+          ebs:
+            delete_on_termination: true
     run_list: yum-epel::default
   - name: centos-5
     driver:
@@ -87,15 +87,25 @@ platforms:
     run_list: yum-epel::default
   - name: debian-8
     run_list: apt::default
-  - name: debian-8-i386
     driver:
-      instance_type: m1.medium
-    run_list: apt::default
+      block_device_mappings:
+        - device_name: /dev/xvda
+          ebs:
+            delete_on_termination: true
   - name: debian-7
     run_list: apt::default
+    driver:
+      block_device_mappings:
+        - device_name: /dev/xvda
+          ebs:
+            delete_on_termination: true
   - name: debian-7-i386
     driver:
       instance_type: m1.medium
+      block_device_mappings:
+        - device_name: /dev/sda
+          ebs:
+            delete_on_termination: true
     run_list: apt::default
   - name: freebsd-11
     driver:
@@ -133,13 +143,21 @@ platforms:
     transport:
       name: winrm
       elevated: true
+  - name: windows-2012-r2-i386
+    driver:
+      image_id: ami-1562d075
+      instance_type: m3.xlarge
+    transport:
+      name: winrm
+      elevated: true
 
 suites:
   - name: default
     run_list:
+    - build-essential::default
     - omnibus_sensu::default
     attributes:
       omnibus_sensu:
         build_version: "<%= build_version %>"
         build_iteration: "<%= build_iteration %>"
-        gpg_passphrase: "<%= gpg_passphrase %>"
+        gpg_passphrase: "<%= ENV["GPG_PASSPHRASE"] %>"

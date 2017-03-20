@@ -33,6 +33,7 @@ stop_sensu_services()
   set -e
 <% case platform_family
 when "aix" -%>
+  set +e
   stopsrc -s sensu-client > /dev/null 2>&1
 <% when "solaris" -%>
   svcadm disable sensu-client > /dev/null 2>&1
@@ -49,6 +50,8 @@ when "aix" -%>
     fi
   done
 <% when "freebsd" -%>
+# this is a noop on <%= platform_family %>
+<% when "mac_os_x" -%>
 # this is a noop on <%= platform_family %>
 <% else raise "Service management undefined for platform family \"#{platform_family}\"" -%>
 <% end -%>

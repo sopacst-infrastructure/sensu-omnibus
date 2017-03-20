@@ -6,9 +6,9 @@ dependency "ruby-windows-devkit" if windows?
 
 source git: "https://github.com/eventmachine/eventmachine.git"
 
-default_version "v1.2.1"
+default_version "v1.2.2"
 
-version "v1.2.1" do
+version "v1.2.2" do
   source git: "https://github.com/eventmachine/eventmachine.git"
 end
 
@@ -28,15 +28,25 @@ build do
   command "gem install --no-document rake-compiler", env: env
   command "rake clean", env: env
 
+  windows_install_prefix = "C:\\opt\\sensu\\embedded"
+
   # disable C++ extensions so we don't need to compile them on platforms
   # we're only using pure_ruby with
   if aix? || solaris?
     patch source: "disable-extensions.patch", plevel: 1, env: patch_env
+  elsif windows?
+    command "rake compile -- --with-opt-lib=#{windows_install_prefix}\\bin", env: env
   else
     command "rake compile", env: env
   end
 
   command "rake gem", env: env
 
-  command "gem install --no-document pkg/eventmachine-1.2.1.gem", env: env
+  compile_options = ''
+
+  if windows?
+    compile_options << " --with-opt-lib=#{windows_install_prefix}\\bin"
+  end
+
+  command "gem install --no-document pkg/eventmachine-1.2.2.gem -- #{compile_options}", env: env
 end

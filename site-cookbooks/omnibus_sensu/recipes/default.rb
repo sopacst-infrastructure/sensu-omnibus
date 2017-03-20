@@ -56,8 +56,35 @@ include_recipe "omnibus::default"
 
 case node["platform_family"]
 when "rhel"
-  package "gpg"
-  package "pygpgme"
+  # skip signing on Centos 5 because of Reasons
+  if Gem::Version.new(node["platform_version"]) >= Gem::Version.new(6)
+    package "gpg"
+    package "pygpgme"
+
+    file ::File.join(build_user_home, '.gpg_passphrase') do
+      owner node["omnibus"]["build_user"]
+      mode 0600
+      content node["omnibus_sensu"]["gpg_passphrase"]
+      sensitive true
+    end
+
+    gnupg_tar_path = ::File.join(build_user_home, 'gnupg.tar')
+
+    aws_s3_file gnupg_tar_path do
+      bucket node["omnibus_sensu"]["publishers"]["s3"]["cache_bucket"]
+      remote_path 'gpg/gnupg.tar'
+      aws_access_key node["omnibus_sensu"]["publishers"]["s3"]["access_key_id"]
+      aws_secret_access_key  node["omnibus_sensu"]["publishers"]["s3"]["secret_access_key"]
+      region node["omnibus_sensu"]["publishers"]["s3"]["region"]
+      owner node["omnibus"]["build_user"]
+      group node["omnibus"]["build_user_group"]
+    end
+
+    execute 'unpack-gpg-tarball' do
+      command "tar -xvf #{gnupg_tar_path}"
+      cwd '/root'
+    end
+  end
 end
 
 gem_package "ffi-yajl" do
@@ -101,7 +128,6 @@ end
 shared_env = {
   "SENSU_VERSION" => node["omnibus_sensu"]["build_version"],
   "BUILD_NUMBER" => node["omnibus_sensu"]["build_iteration"],
-  "GPG_PASSPHRASE" => node["omnibus_sensu"]["gpg_passphrase"]
 }
 
 omnibus_build "sensu" do
@@ -147,12 +173,14 @@ load_toolchain_cmd = case windows?
 
 case windows?
 when true
-  msi_name = "sensu-#{artifact_id}-x64.msi"
+  arch = windows_arch_i386? ? "i386" : "x86_64"
+  win_arch = windows_arch_i386? ? "x86" : "x64"
+  msi_name = "sensu-#{artifact_id}-#{win_arch}.msi"
   aws_cli = File.join('C:\"Program Files"\Amazon\AWSCLI\aws')
 
   [ msi_name, "#{msi_name}.metadata.json" ].each do |pkg_file|
     execute "publish_sensu_#{pkg_file}_s3_windows" do
-      command "#{aws_cli} s3 cp pkg\\#{pkg_file} s3://#{node["omnibus_sensu"]["publishers"]["s3"]["artifact_bucket"]}/windows/2012r2/x86_64/#{msi_name}/#{pkg_file}"
+      command "#{aws_cli} s3 cp pkg\\#{pkg_file} s3://#{node["omnibus_sensu"]["publishers"]["s3"]["artifact_bucket"]}/windows/2012r2/#{arch}/#{msi_name}/#{pkg_file}"
       cwd node["omnibus_sensu"]["project_dir"]
       environment publish_environment
       not_if { node["omnibus_sensu"]["publishers"]["s3"].any? {|k,v| v.nil? } }

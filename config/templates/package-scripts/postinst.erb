@@ -47,6 +47,14 @@ SENSU_GEM_PATHS=$EMBEDDED_DIR/lib/ruby/gems/2.2.0:$GEM_PATH
 
 SYSV_SCRIPTS_EXIST=false
 
+<% if platform_family == "mac_os_x" -%>
+SENSU_USER=_sensu
+SENSU_GROUP=_sensu
+<% else -%>
+SENSU_USER=sensu
+SENSU_GROUP=sensu
+<% end -%>
+
 error_exit()
 {
   echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
@@ -75,7 +83,12 @@ create_sensu_user_group()
 {
   # create sensu group
   set +e
+  <% case platform_family
+  when "mac_os_x" -%>
+  dscl . -list /Groups | grep "^_sensu" > /dev/null
+  <% else -%>
   grep "^sensu:" /etc/group > /dev/null
+  <% end -%>
   RC=$?
   set -e
   if [ "${RC}" != "0" ]; then
@@ -88,13 +101,23 @@ create_sensu_user_group()
     pw groupadd sensu
     <% when "debian", "rhel" -%>
     groupadd -r sensu
+    <% when "mac_os_x" -%>
+    last_used_gid=`dscacheutil -q group | grep gid | tail -n 1 | awk '{ print $2 }'`
+    sensu_gid=`echo "$last_used_gid + 1" | bc`
+    dscl . -create Groups/_sensu
+    dscl . -create Groups/_sensu PrimaryGroupID $sensu_gid
     <% else raise "Group creation undefined for platform family \"#{platform_family}\"" -%>
     <% end -%>
   fi
 
   # create sensu user
   set +e
+  <% case platform_family
+  when "mac_os_x" -%>
+  dscl . -list /Users | grep "^_sensu" > /dev/null
+  <% else -%>
   grep "^sensu:" /etc/passwd > /dev/null
+  <% end -%>
   RC=$?
   set -e
   if [ "${RC}" != "0" ]; then
@@ -108,6 +131,11 @@ create_sensu_user_group()
     pw adduser sensu -g sensu -d /nonexistent -s /usr/sbin/nologin -c "Sensu Monitoring Framework"
     <% when "debian", "rhel" -%>
     useradd -r -g sensu -d /opt/sensu -s /bin/false -c "Sensu Monitoring Framework" sensu
+    <% when "mac_os_x" -%>
+    sensu_gid=`dscl . -read /Groups/_sensu | awk '($1 == "PrimaryGroupID:") { print $2 }'`
+    dscl . -create /Users/_sensu UniqueID $sensu_gid
+    dscl . -create /Users/_sensu PrimaryGroupID $sensu_gid
+    dscl . -create /Users/_sensu UserShell /usr/bin/false
     <% else raise "User creation undefined for platform family \"#{platform_family}\"" -%>
     <% end -%>
   fi
@@ -118,18 +146,22 @@ chown_sensu_dirs()
   set -e
   # Ensure all files/directories in $INSTALLER_DIR are owned by root.
   chown -Rh 0:0 $INSTALLER_DIR
-  chown -R sensu:sensu $CONFIG_DIR
-  chown -R sensu:sensu $LOG_DIR
-  chown -R sensu:sensu $PID_DIR
-  chown -R sensu:sensu $TMP_DIR
+  chown -R $SENSU_USER:$SENSU_GROUP $CONFIG_DIR
+  chown -R $SENSU_USER:$SENSU_GROUP $LOG_DIR
+  chown -R $SENSU_USER:$SENSU_GROUP $PID_DIR
+  chown -R $SENSU_USER:$SENSU_GROUP $TMP_DIR
 }
 
 create_system_services()
 {
-  set -e
   <% if platform_family == "aix" -%>
+  set +e
   rmssys -s sensu-client 2>&1 > /dev/null
+  set -e
   mkssys -s sensu-client -p "/opt/sensu/bin/sensu-service" -a "start client" -u sensu -S -n 15 -f 9 > /dev/null
+  <% else -%>
+  # this function is a noop on <%= platform_family %>
+  return
   <% end -%>
 }
 
