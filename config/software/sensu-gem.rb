@@ -99,6 +99,22 @@ build do
   gem "install sensu-plugins-snmp" \
       " --no-ri --no-rdoc", env: env
 
+  gem "install sensu-plugins-hardware" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-ipmi" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-ipmi-sensors" \
+      " --no-ri --no-rdoc", env: env
+  
+  gem "install sensu-plugins-ssl" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-plugins-snmptrap-extension" \
+      " --no-ri --no-rdoc", env: env
+
+
   share_dir = File.join(install_dir, "embedded", "share", "sensu")
   bin_dir = File.join(install_dir, "bin")
   embedded_bin_dir = File.join(install_dir, "embedded", "bin")
