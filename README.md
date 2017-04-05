@@ -31,7 +31,7 @@ platform and architecture combinations:
 | CentOS 7           | ✅     | ❌     | No official 32bit images |
 | FreeBSD 10         | ✅     | ❌     | Official 32bit images are out of date |
 | FreeBSD 11         | ✅     | ❌     | No official 32bit images |
-| Windows 2012r2     | ✅     | ❌     |                          |
+| Windows 2012r2     | ✅     | ✅     | 32bit artifact built on 64bit platform |
 | Mac OS X 10.9      | ✅     | ❌     | See [Mac platform notes](platform-docs/MAC_OS_X.md) for instructions |
 | Mac OS X 10.10     | ✅     | ❌     | See [Mac platform notes](platform-docs/MAC_OS_X.md) for instructions |
 | Mac OS X 10.11     | ✅     | ❌     | See [Mac platform notes](platform-docs/MAC_OS_X.md) for instructions |
@@ -87,7 +87,7 @@ environment variables set to appropriate values:
 | `AWS_REGION`            | Region where AWS instances will be created                      |
 | `AWS_ACCESS_KEY_ID`     | Access key ID for AWS account                                   |
 | `AWS_SECRET_ACCESS_KEY` | Secret access key for AWS account                               |
-| `AWS_SSH_KEY_NAME`      | Name of SSH key pair (must exist in specified AWS region)       |
+| `AWS_SSH_KEY_ID`        | Name of SSH key pair (must exist in specified AWS region)       |
 | `AWS_SSH_KEY_PATH`      | Local path to SSH private key matching named SSH key            |
 | `SENSU_VERSION`         | Must correspond to a published Sensu gem available on RubyGems  |
 | `BUILD_NUMBER`          | Denotes the incremental build number used for package artifacts |
