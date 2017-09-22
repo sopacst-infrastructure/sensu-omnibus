@@ -9,5 +9,4 @@ bin/*
 files/**/cache/
 vendor/cookbooks
 *~
-.envrc
-archive.tar
+site-cookbooks/omnibus_sensu/files/default/archive.zip

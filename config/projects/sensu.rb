@@ -40,8 +40,8 @@ build_version version
 build_iteration ENV["BUILD_NUMBER"]
 
 override "sensu-gem", version: version
-override "ruby", version: "2.3.0"
-override "rubygems", version: "2.6.6"
+override "ruby", version: "2.4.1"
+override "rubygems", version: "2.6.10"
 
 package :deb do
   section "Monitoring"
@@ -56,11 +56,6 @@ gpg_passphrase = begin
                  end
 
 platform_version = ohai["platform_version"]
-
-case ohai['platform_family']
-when 'rhel'
-  runtime_dependency 'redhat-lsb'
-end
 
 package :rpm do
   category "Monitoring"
@@ -82,13 +77,6 @@ package :pkg do
 end
 compress :dmg
 
-# TODO: config files are removed during actions such as dpkg --purge
-#if linux?
-#  config_file "/etc/sensu/conf.d/README.md"
-#  config_file "/etc/logrotate.d/sensu"
-#  config_file "/etc/default/sensu"
-#end
-
 # Creates required build directories
 dependency "preparation"
 
@@ -97,6 +85,9 @@ dependency "package-scripts" unless windows?
 
 # sensu dependencies/components
 dependency "sensu-gem"
+
+# Make sure Windows gets a gem.bat
+dependency "shebang-cleanup" if windows?
 
 # Version manifest file
 dependency "version-manifest"
