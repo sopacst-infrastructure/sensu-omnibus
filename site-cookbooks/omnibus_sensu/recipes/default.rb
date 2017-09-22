@@ -104,12 +104,49 @@ end
 
 project_dir = windows? ? File.join("C:", node["omnibus_sensu"]["project_dir"]) : node["omnibus_sensu"]["project_dir"]
 
-git project_dir do
-  repository 'https://github.com/sensu/sensu-omnibus.git'
-  revision node["omnibus_sensu"]["project_revision"]
-  user node["omnibus"]["build_user"] unless windows?
-  group node["omnibus"]["build_user_group"] unless windows?
-  action :sync
+rev = node["omnibus_sensu"]["project_revision"]
+
+case rev
+when 'archive'
+  directory project_dir do 
+    user node["omnibus"]["build_user"] unless windows?
+    group node["omnibus"]["build_user_group"] unless windows?
+    recursive true
+    action :create
+  end
+
+  archive_file = File.join(project_dir,'archive.zip')
+  cookbook_file archive_file do
+    source 'archive.zip'
+    user node["omnibus"]["build_user"] unless windows?
+    group node["omnibus"]["build_user_group"] unless windows?
+    action :create
+  end
+
+  chef_gem 'rubyzip'
+
+  ruby_block 'expand_archive' do 
+    block do
+      require 'zip'
+
+      Zip.on_exists_proc = true
+
+      Zip::File.open(archive_file) do |arcv|
+        arcv.each do |entry|
+          fpath = File.join(project_dir, entry.name)
+          entry.extract(fpath)
+        end
+      end
+    end
+  end
+else
+  git project_dir do
+    repository 'https://github.com/sensu/sensu-omnibus.git'
+    revision rev
+    user node["omnibus"]["build_user"] unless windows?
+    group node["omnibus"]["build_user_group"] unless windows?
+    action :sync
+  end
 end
 
 template ::File.join(node["omnibus_sensu"]["project_dir"], "omnibus.rb") do
@@ -130,12 +167,42 @@ shared_env = {
   "BUILD_NUMBER" => node["omnibus_sensu"]["build_iteration"],
 }
 
+if windows?
+  shared_env.merge!(
+    "WINDOWS_TARGET_VERSION" => node["omnibus_sensu"]["windows_target_version"]
+  )
+end
+
+load_toolchain_cmd = case windows?
+                     when true
+                       "call #{::File.join(build_user_home, 'load-omnibus-toolchain.bat')}"
+                     when false
+                       ".  #{::File.join(build_user_home, 'load-omnibus-toolchain.sh')}"
+                     end
+
+execute "populate_omnibus_cache_s3" do
+  command(
+    <<-CODE.gsub(/^ {10}/, '')
+          #{load_toolchain_cmd} && \
+          bundle install && \
+          bundle exec omnibus cache missing && \
+          bundle exec omnibus cache populate && \
+          bundle exec omnibus cache missing
+       CODE
+    )
+  cwd node["omnibus_sensu"]["project_dir"]
+  user "root" unless windows?
+  environment shared_env
+  not_if { node["omnibus_sensu"]["publishers"]["s3"].any? {|k,v| v.nil? } }
+end
+
 omnibus_build "sensu" do
   project_dir node["omnibus_sensu"]["project_dir"]
   log_level :info
   build_user "root" unless windows?
   environment shared_env
   live_stream true
+  timeout 7200
 end
 
 pkg_suffix_map = {
@@ -164,23 +231,17 @@ publish_environment = case windows?
                         })
                       end
 
-load_toolchain_cmd = case windows?
-                     when true
-                       "call #{::File.join(build_user_home, 'load-omnibus-toolchain.bat')}"
-                     when false
-                       ".  #{::File.join(build_user_home, 'load-omnibus-toolchain.sh')}"
-                     end
-
 case windows?
 when true
   arch = windows_arch_i386? ? "i386" : "x86_64"
   win_arch = windows_arch_i386? ? "x86" : "x64"
+  win_version = node["omnibus_sensu"]["windows_target_version"]
   msi_name = "sensu-#{artifact_id}-#{win_arch}.msi"
   aws_cli = File.join('C:\"Program Files"\Amazon\AWSCLI\aws')
 
   [ msi_name, "#{msi_name}.metadata.json" ].each do |pkg_file|
     execute "publish_sensu_#{pkg_file}_s3_windows" do
-      command "#{aws_cli} s3 cp pkg\\#{pkg_file} s3://#{node["omnibus_sensu"]["publishers"]["s3"]["artifact_bucket"]}/windows/2012r2/#{arch}/#{msi_name}/#{pkg_file}"
+      command "#{aws_cli} s3 cp pkg\\#{pkg_file} s3://#{node["omnibus_sensu"]["publishers"]["s3"]["artifact_bucket"]}/windows/#{win_version}/#{arch}/#{msi_name}/#{pkg_file}"
       cwd node["omnibus_sensu"]["project_dir"]
       environment publish_environment
       not_if { node["omnibus_sensu"]["publishers"]["s3"].any? {|k,v| v.nil? } }

@@ -151,6 +151,7 @@ fi
 cd /opt/sensu
 
 exec="/opt/sensu/bin/sensu-service"
+daemon_exec="/opt/sensu/bin/sensu-<%= service_shortname %>"
 
 pidfile=$PID_DIR/$service_name.pid
 logfile=$LOG_DIR/$service_name.log
@@ -160,14 +161,14 @@ options="start <%= service_shortname %> fork"
 set_sensu_paths() {
     if [ "x$EMBEDDED_RUBY" = "xtrue" ]; then
         export PATH=/opt/sensu/embedded/bin:$PATH:$PLUGINS_DIR:$HANDLERS_DIR
-        export GEM_PATH=/opt/sensu/embedded/lib/ruby/gems/2.3.0:$GEM_PATH
+        export GEM_PATH=/opt/sensu/embedded/lib/ruby/gems/2.4.0:$GEM_PATH
     else
         export PATH=$PATH:$PLUGINS_DIR:$HANDLERS_DIR
     fi
 }
 
 pid_pgrep() {
-    pgrep -f -P 1 -u $USER " $exec "
+    pgrep -f -P 1 -u $USER " $daemon_exec "
 }
 
 wait_for_stop() {
@@ -230,14 +231,18 @@ start() {
 stop() {
     log_daemon_msg "Stopping $service_name"
 
-    # try pgrep
-    pid=$(pid_pgrep)
+    if [ -f "$pidfile" ] ; then
+        # try the pid file first
+        read pid < "$pidfile"
+    fi
 
-    if [ ! -n "$pid" ]; then
-        # try the pid file
-        if [ -f "$pidfile" ] ; then
-            read pid < "$pidfile"
-        fi
+    # test if pid is running
+    kill -0 $pid > /dev/null 2>&1
+    retval=$?
+
+    if [ $retval -ne 0 ]; then
+        # fall back to pgrep
+        pid=$(pid_pgrep)
     fi
 
     if [ -n "$pid" ]; then
