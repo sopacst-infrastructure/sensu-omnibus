@@ -103,6 +103,7 @@ build do
       " --no-ri --no-rdoc", env: env
 
   gem "install sensu-plugins-postgres" \
+      " --version '1.3.0'" \
       " --no-ri --no-rdoc", env: env
 
   gem "install sensu-plugins-process-checks" \
