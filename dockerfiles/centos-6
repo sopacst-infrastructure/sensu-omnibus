@@ -6,7 +6,7 @@ RUN yum clean all
 RUN yum install -y autoconf268 curl m4 make gcc gcc-c++ rpm-build zlib-devel openssl-devel libyaml-devel git
 
 RUN mkdir -p /usr/src/ruby \
-    && curl -L https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.0.tar.bz2 | tar -xjC /usr/src/ruby --strip-components=1 \
+    && curl -L https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.2.tar.bz2 | tar -xjC /usr/src/ruby --strip-components=1 \
     && cd /usr/src/ruby \
     && autoconf268 \
     && ./configure \
