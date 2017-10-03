@@ -26,13 +26,13 @@ platform and architecture combinations:
 | Ubuntu 16.04       | ✅     | ❌     | No official 32bit images |
 | Debian 7           | ✅     | ✅     |                          |
 | Debian 8           | ✅     | ❌     | No official 32bit images |
+| Debian 9           | ✅     | ❌     | No official 32bit images |
 | CentOS 5           | ✅     | ✅     | 32 and 64bit images built with [sensu-omnibus-packer](https://github.com/sensu/sensu-omnibus-packer) |
 | CentOS 6           | ✅     | ✅     | Using unofficial 32bit image |
 | CentOS 7           | ✅     | ❌     | No official 32bit images |
 | FreeBSD 10         | ✅     | ❌     | Official 32bit images are out of date |
 | FreeBSD 11         | ✅     | ❌     | No official 32bit images |
 | Windows 2012r2     | ✅     | ✅     | 32bit artifact built on 64bit platform |
-| Mac OS X 10.9      | ✅     | ❌     | See [Mac platform notes](platform-docs/MAC_OS_X.md) for instructions |
 | Mac OS X 10.10     | ✅     | ❌     | See [Mac platform notes](platform-docs/MAC_OS_X.md) for instructions |
 | Mac OS X 10.11     | ✅     | ❌     | See [Mac platform notes](platform-docs/MAC_OS_X.md) for instructions |
 | macOS 10.12        | ✅     | ❌     | See [Mac platform notes](platform-docs/MAC_OS_X.md) for instructions |
