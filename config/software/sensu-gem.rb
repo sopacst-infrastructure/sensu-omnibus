@@ -133,6 +133,9 @@ build do
   gem "install sensu-plugins-slack" \
       " --no-ri --no-rdoc", env: env
 
+  gem "install sensu-plugins-sensu" \
+      " --no-ri --no-rdoc", env: env
+
   share_dir = File.join(install_dir, "embedded", "share", "sensu")
   bin_dir = File.join(install_dir, "bin")
   embedded_bin_dir = File.join(install_dir, "embedded", "bin")
