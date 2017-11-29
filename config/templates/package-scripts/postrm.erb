@@ -40,6 +40,21 @@ purge_sensu_files()
     rm -rf /var/cache/sensu
   fi
 }
+purge_sensu_unit_files()
+{
+  set -e
+  # let's first get the units and the corresponding services
+  units=$(systemctl list-unit-files --full | grep '^sensu[-.]' | cut -f1 -d ' ')
+  services=$(echo "$units" | grep '^sensu[-.].*\.service$' )
+  
+  # Not remove all unit files belongin to sensu everywhere
+  for unit in $services; do
+    echo "Removing $unit"
+    rm -f "/etc/systemd/system/$unit"
+    rm -f "/etc/systemd/system/multi-user.target.wants/$unit"
+    rm -f "/lib/systemd/system/$unit"
+  done
+}
 
 <% case platform_family
   when "rhel" -%>
@@ -54,6 +69,7 @@ case "$1" in
   purge)
     purge_sensu_services
     purge_sensu_files
+    purge_sensu_unit_files
     ;;
 
   remove|upgrade|abort-upgrade|abort-remove|abort-deconfigure)
