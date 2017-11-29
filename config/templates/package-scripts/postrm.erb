@@ -47,7 +47,7 @@ purge_sensu_unit_files()
   units=$(systemctl list-unit-files --full | grep '^sensu[-.]' | cut -f1 -d ' ')
   services=$(echo "$units" | grep '^sensu[-.].*\.service$' )
   
-  # Not remove all unit files belongin to sensu everywhere
+  # Now remove all unit files belongin to sensu everywhere
   for unit in $services; do
     echo "Removing $unit"
     rm -f "/etc/systemd/system/$unit"
