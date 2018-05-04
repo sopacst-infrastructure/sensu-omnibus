@@ -44,7 +44,7 @@ build do
       " --no-ri --no-rdoc", env: env
 
   gem "install sensu-translator" \
-      " --version '0.2.0'" \
+      " --version '0.3.0'" \
       " --no-ri --no-rdoc", env: env
 
   share_dir = File.join(install_dir, "embedded", "share", "sensu")
