@@ -86,6 +86,10 @@ Vagrant.configure("2") do |config|
      wget https://packages.chef.io/files/stable/chefdk/2.5.3/ubuntu/16.04/chefdk_2.5.3-1_amd64.deb
      dpkg -i chefdk_2.5.3-1_amd64.deb
      echo "export PATH=/opt/chefdk/bin:$PATH" >> /home/vagrant/.bashrc
-     echo "eval \"$(chef shell-init bash)\"" >> /home/vagrant.bashrc
+     echo 'eval "$(chef shell-init bash)"' >> /home/vagrant/.bashrc
+     echo 'export SENSU_VERSION=1.3.3' >> /home/vagrant/.bashrc
+     echo 'export BUILD_NUMBER=3000' >> /home/vagrant/.bashrc
+     runuser -l vagrant -c 'git config --global user.name "Sensu Inc"'
+     runuser -l vagrant -c 'git config --global user.email "build@sensu.io"'
    SHELL
 end
