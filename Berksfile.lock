@@ -6,7 +6,7 @@ DEPENDENCIES
     ref: sensu
   omnibus
     git: https://github.com/sensu/omnibus-cookbook.git
-    revision: 97b39a37fedd1aa65415c51a2d2f4f8cbd13ddfc
+    revision: 7227b19039833bcf57869833fff16aa00271007e
     ref: sensu
   omnibus_sensu
     path: site-cookbooks/omnibus_sensu
