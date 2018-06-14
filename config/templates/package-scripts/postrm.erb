@@ -62,6 +62,23 @@ if [ $1 -eq 0 ]; then
   purge_sensu_services
   purge_sensu_files
 fi
+##
+# Note: 
+#   Old versions of the sensu package when uninstalled may remove
+#   systemd service files in older locations as part of rpm operaton.
+#   Make sure to daemon-reload to keep systemd happy
+# Ref: Impacts rpms build prior to Issue #240 commit
+##
+using_systemd()
+{
+    [ -e "/proc/1/comm" ] && grep -q "^systemd$" /proc/1/comm
+}
+set +e
+if using_systemd; then
+    systemctl daemon-reload
+fi
+set -e
+
 <% when "debian" -%>
 case "$1" in
   purge)
