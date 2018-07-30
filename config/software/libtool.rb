@@ -39,6 +39,7 @@ build do
     # Update config.guess to support newer platforms (like aarch64)
     if version == "2.4"
       update_config_guess
+      update_config_guess(target: "libltdl/config")
     end
   end
 
