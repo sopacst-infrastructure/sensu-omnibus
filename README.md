@@ -24,6 +24,7 @@ platform and architecture combinations:
 | Ubuntu 12.04       | ✅     | ✅     |                          |
 | Ubuntu 14.04       | ✅     | ✅     |                          |
 | Ubuntu 16.04       | ✅     | ❌     | No official 32bit images |
+| Ubuntu 18.04       | ✅     | ❌     | No official 32bit images |
 | Debian 7           | ✅     | ✅     |                          |
 | Debian 8           | ✅     | ❌     | No official 32bit images |
 | Debian 9           | ✅     | ❌     | No official 32bit images |

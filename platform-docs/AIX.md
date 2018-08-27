@@ -81,8 +81,10 @@ than two hours.
 9. Install `sudo` and `coreutils`:
 
   ```sh
-  rpm -i ftp://ftp.software.ibm.com/aix/freeSoftware/aixtoolbox/RPMS/ppc/sudo/sudo-1.8.15-1noldap.aix6.1.ppc.rpm
-  rpm -i ftp://ftp.software.ibm.com/aix/freeSoftware/aixtoolbox/RPMS/ppc/coreutils/coreutils-5.2.1-2.aix5.1.ppc.rpm
+  perl -e 'use LWP::Simple; getprint($ARGV[0]);' "ftp://ftp.software.ibm.com/aix/freeSoftware/aixtoolbox/RPMS/ppc/sudo/sudo-1.8.15-1noldap.aix6.1.ppc.rpm" > sudo-1.8.15-1noldap.aix6.1.ppc.rpm
+  perl -e 'use LWP::Simple; getprint($ARGV[0]);' "ftp://ftp.software.ibm.com/aix/freeSoftware/aixtoolbox/RPMS/ppc/coreutils/coreutils-5.2.1-2.aix5.1.ppc.rpm" > coreutils-5.2.1-2.aix5.1.ppc.rpm
+  rpm -i sudo-1.8.15-1noldap.aix6.1.ppc.rpm
+  rpm -i coreutils-5.2.1-2.aix5.1.ppc.rpm
   ```
 
 10. Increase the maximum memory that processes are allowed to use:

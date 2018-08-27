@@ -63,6 +63,8 @@ provisioner:
 
 platforms:
   - name: centos-7
+    driver:
+      image_id: ami-a042f4d8
     run_list: yum-epel::default
   - name: centos-7-i386
     run_list: yum-epel::default
@@ -129,6 +131,8 @@ platforms:
     run_list:
       - omnibus_sensu::freebsd_portsnap
       - freebsd::pkgng
+  - name: ubuntu-18.04
+    run_list: apt::default
   - name: ubuntu-16.04
     run_list: apt::default
   - name: ubuntu-16.04-i386

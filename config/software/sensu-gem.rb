@@ -132,6 +132,13 @@ build do
   gem "install sensu-plugins-sensu" \
       " --no-ri --no-rdoc", env: env
 
+  gem "install sensu-plugins-systemd" \
+      " --no-ri --no-rdoc", env: env
+
+  gem "install sensu-translator" \
+      " --version '0.3.0'" \
+      " --no-ri --no-rdoc", env: env
+
   share_dir = File.join(install_dir, "embedded", "share", "sensu")
   bin_dir = File.join(install_dir, "bin")
   embedded_bin_dir = File.join(install_dir, "embedded", "bin")
@@ -268,5 +275,6 @@ build do
     link("#{embedded_bin_dir}/sensu-client", "#{bin_dir}/sensu-client")
     link("#{embedded_bin_dir}/sensu-server", "#{bin_dir}/sensu-server")
     link("#{embedded_bin_dir}/sensu-api", "#{bin_dir}/sensu-api")
+    link("#{embedded_bin_dir}/sensu-translator", "#{bin_dir}/sensu-translator")
   end
 end

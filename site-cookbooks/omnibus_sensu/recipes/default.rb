@@ -7,12 +7,6 @@
 include_recipe 'chef-sugar'
 
 if windows?
-  msys2_filename = 'msys2-base-x86_64-20160205.tar.xz'
-  remote_file "#{ENV['SYSTEMDRIVE']}\\msys2\\.cache\\#{msys2_filename}" do
-    source "https://s3-us-west-2.amazonaws.com/sensu-omnibus-cache/#{msys2_filename}"
-    action :create
-  end
-
   include_recipe 'chocolatey'
 
   chocolatey 'dotnet3.5' do
@@ -149,6 +143,7 @@ else
   git project_dir do
     repository 'https://github.com/sensu/sensu-omnibus.git'
     revision rev
+    environment ({"PATH" => '/opt/omnibus-toolchain/bin:/opt/omnibus-toolchain/embedded/bin:/usr/local/bin:$PATH'}) unless windows?
     user node["omnibus"]["build_user"] unless windows?
     group node["omnibus"]["build_user_group"] unless windows?
     action :sync
@@ -202,19 +197,19 @@ execute "populate_omnibus_cache_s3" do
   not_if { node["omnibus_sensu"]["publishers"]["s3"].any? {|k,v| v.nil? } }
 end
 
-case node["platform"]
-when "debian"
+debian_9_or_greater = node["platform"] == "debian" && Gem::Version.new(node["platform_version"]) >= Gem::Version.new(9)
+ubuntu_1804_or_greater = node["platform"] == "ubuntu" && Gem::Version.new(node["platform_version"]) >= Gem::Version.new("18.04")
+
+if debian_9_or_greater || ubuntu_1804_or_greater
   # replace omnibus-toolchain tar with system tar as dpkg-deb requires --clamp-mtime now
-  if Gem::Version.new(node["platform_version"]) >= Gem::Version.new(9)
-    embedded_tar_path = "/opt/omnibus-toolchain/embedded/bin/tar"
+  embedded_tar_path = "/opt/omnibus-toolchain/embedded/bin/tar"
 
-    file embedded_tar_path do
-      action :delete
-    end
+  file embedded_tar_path do
+    action :delete
+  end
 
-    link embedded_tar_path do
-      to "/bin/tar"
-    end
+  link embedded_tar_path do
+    to "/bin/tar"
   end
 end
 
