@@ -1,8 +1,12 @@
 DEPENDENCIES
   apt (~> 2.8)
+  mingw
+    git: https://github.com/sensu/mingw-cookbook.git
+    revision: e018959c790d0193ebac6bb6d074c0ef82b7ce16
+    ref: sensu
   omnibus
     git: https://github.com/sensu/omnibus-cookbook.git
-    revision: 97b39a37fedd1aa65415c51a2d2f4f8cbd13ddfc
+    revision: 5d3bc9cbe71836a8b4e1bca44e04a1576a4f4553
     ref: sensu
   omnibus_sensu
     path: site-cookbooks/omnibus_sensu
@@ -27,7 +31,7 @@ GRAPH
     dmg (>= 0.0.0)
     yum-epel (>= 0.0.0)
   homebrew (3.0.0)
-  mingw (2.0.0)
+  mingw (2.0.1)
     seven_zip (>= 0.0.0)
   ohai (5.0.2)
   omnibus (5.1.6)
@@ -54,7 +58,7 @@ GRAPH
   windows (3.0.4)
     ohai (>= 4.0.0)
   windows-sdk (1.0.2)
-  wix (3.2.0)
+  wix (4.0.0)
     windows (>= 2.0)
   yum (5.0.0)
   yum-epel (0.7.1)
