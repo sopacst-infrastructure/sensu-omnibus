@@ -91,7 +91,7 @@ create_sensu_user_group()
     <% case platform_family
     when "mac_os_x" -%>
     dscl . -list /Groups | grep "^_sensu" > /dev/null
-    <% when "linux" -%>
+    <% when "debian", "rhel" -%>
     getent group sensu > /dev/null
     <% else -%>
     grep "^sensu:" /etc/group > /dev/null
@@ -122,7 +122,7 @@ create_sensu_user_group()
     <% case platform_family
     when "mac_os_x" -%>
     dscl . -list /Users | grep "^_sensu" > /dev/null
-    <% when "linux" -%>
+    <% when "debian", "rhel" -%>
     getent passwd sensu > /dev/null
     <% else -%>
     grep "^sensu:" /etc/passwd > /dev/null
@@ -174,22 +174,28 @@ create_system_services()
     <% end -%>
 }
 
+systemctl_daemon_reload()
+{
+    set +e
+    if using_systemd; then
+	systemctl daemon-reload
+    fi
+    set -e
+}
+
 <% case platform_family
 when "rhel" -%>
 if [ $1 -eq 1 ]; then
     create_sensu_user_group
 fi
-set +e
-if using_systemd; then
-    systemctl daemon-reload
-fi
-set -e
+systemctl_daemon_reload
 chown_sensu_dirs
 <% when "debian" -%>
 case "$1" in
     configure)
 	create_sensu_user_group
 	chown_sensu_dirs
+	systemctl_daemon_reload
 	;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
